@@ -1,0 +1,84 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'maven-publish'
+}
+
+group 'Dukkit'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.javassist:javassist:3.28.0-GA")
+}
+
+jar {
+    from {
+        for (File file : new File("archive").listFiles()) {
+            zipTree(file)
+        }
+    }
+
+    manifest {
+        attributes(
+                "Premain-Class": "org.dukkit.DukkitMain",
+                "Can-Redefine-Classes": false,
+                "Can-Set-Native-Method-Prefix": false
+        )
+    }
+}
+
+processResources {
+    outputs.upToDateWhen {false}
+    String versionNumber = System.getenv("BUILD_NUMBER") == null ? version : version + "-DEVb" + System.getenv("BUILD_NUMBER")
+    eachFile { details ->
+        if (details.name.contentEquals('plugin.yml')) {
+            filter { String line ->
+                line.replace('${project.version}', versionNumber)
+            }
+        }
+    }
+}
+
+shadowJar {
+    dependsOn(jar)
+
+    if(System.getenv("BUILD_NUMBER") == null){
+        archiveName = rootProject.name + ".jar"
+    }
+    else{
+        archiveName = rootProject.name + "-b" + System.getenv("BUILD_NUMBER") + ".jar"
+    }
+
+    delete fileTree('./target/') {
+        exclude archiveName
+    }
+
+    destinationDir = file("./target/")
+    from sourceSets.getByName("main").output
+    configurations = [project.configurations.getByName("runtimeClasspath")]
+}
+
+task copyAPI(type: Copy) {
+    from './archive/API.jar'
+    into './target/'
+    rename('API.jar', rootProject.name + 'API.jar')
+}
+
+clean {
+    delete file('./archive/')
+}
+
+build {
+    dependsOn shadowJar
+    dependsOn copyAPI
+    dependsOn clean
+}
+
+publish.shouldRunAfter shadowJar
+shadowJar.shouldRunAfter build
+build.shouldRunAfter subprojects.build

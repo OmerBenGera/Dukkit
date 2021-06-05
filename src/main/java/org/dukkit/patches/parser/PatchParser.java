@@ -91,23 +91,23 @@ public final class PatchParser {
 
             // Source section starts after a new empty line until the end of the patch.
             if (currentLine.equals(SOURCE_SECTION_START_INDICATOR)) {
-                StringBuilder bodyValue = new StringBuilder();
+                StringBuilder sourceValue = new StringBuilder();
 
                 do {
                     ++i;
                     if (i < lines.size()) {
                         currentLine = lines.get(i);
                         if (!currentLine.equals("}")) {
-                            if (bodyValue.length() != 0) {
-                                bodyValue.append(System.lineSeparator());
+                            if (sourceValue.length() != 0) {
+                                sourceValue.append(System.lineSeparator());
                             }
-                            bodyValue.append(currentLine);
+                            sourceValue.append(currentLine);
                         }
                     }
                 } while (i < lines.size());
 
-                if (bodyValue.length() != 0) {
-                    linesValues.put(SOURCE_SECTION_NAME, bodyValue);
+                if (sourceValue.length() != 0) {
+                    linesValues.put(SOURCE_SECTION_NAME, sourceValue.toString());
                 }
             } else {
                 String[] lineSections = LINE_SECTION_SPLITTER_PATTERN.split(currentLine);

@@ -35,10 +35,11 @@ public final class DukkitMain {
                 String patchFileName = patchFile.getName();
                 try {
                     logger.info(String.format("Loading patch %s...", patchFileName));
-                    long startTime = System.nanoTime();
+                    long startTime = System.currentTimeMillis();
                     transformer.addPatch(PatchParser.fromFile(patchFile).parse());
+                    long endTime = System.currentTimeMillis();
                     logger.info(String.format("Loading patch %s is done (Took %dms)!",
-                            patchFileName, System.nanoTime() - startTime));
+                            patchFileName, endTime - startTime));
                 } catch (IOException ex) {
                     logger.warning(String.format("Cannot read the patch '%s'.", patchFileName));
                 } catch (InvalidPatchException ex) {

@@ -14,38 +14,43 @@ public final class DukkitMain {
     private static final String PATCHES_PATH = "patches";
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
-        DukkitTransformer transformer = new DukkitTransformer();
+        try {
+            DukkitTransformer transformer = new DukkitTransformer();
 
-        File patchesFolder = createPatchesFolder();
+            File patchesFolder = createPatchesFolder();
 
-        if (patchesFolder == null || !patchesFolder.isDirectory()) {
-            logger.warning("Cannot create patches folder, disabling Dukkit...");
-            return;
-        }
-
-        File[] patchesFiles = patchesFolder.listFiles();
-
-        if (patchesFiles == null) {
-            logger.warning("Cannot read the patches folder, disabling Dukkit...");
-            return;
-        }
-
-        for (File patchFile : patchesFiles) {
-            String patchFileName = patchFile.getName();
-            try {
-                logger.info(String.format("Loading patch %s...", patchFileName));
-                long startTime = System.nanoTime();
-                transformer.addPatch(PatchParser.fromFile(patchFile).parse());
-                logger.info(String.format("Loading patch %s is done (Took %dms)!",
-                        patchFileName, System.nanoTime() - startTime));
-            } catch (IOException ex) {
-                logger.warning(String.format("Cannot read the patch '%s'.", patchFileName));
-            } catch (InvalidPatchException ex) {
-                logger.warning(String.format("Cannot parse the patch '%s': '%s'.", patchFileName, ex.getMessage()));
+            if (patchesFolder == null || !patchesFolder.isDirectory()) {
+                logger.warning("Cannot create patches folder, disabling Dukkit...");
+                return;
             }
-        }
 
-        instrumentation.addTransformer(transformer);
+            File[] patchesFiles = patchesFolder.listFiles();
+
+            if (patchesFiles == null) {
+                logger.warning("Cannot read the patches folder, disabling Dukkit...");
+                return;
+            }
+
+            for (File patchFile : patchesFiles) {
+                String patchFileName = patchFile.getName();
+                try {
+                    logger.info(String.format("Loading patch %s...", patchFileName));
+                    long startTime = System.nanoTime();
+                    transformer.addPatch(PatchParser.fromFile(patchFile).parse());
+                    logger.info(String.format("Loading patch %s is done (Took %dms)!",
+                            patchFileName, System.nanoTime() - startTime));
+                } catch (IOException ex) {
+                    logger.warning(String.format("Cannot read the patch '%s'.", patchFileName));
+                } catch (InvalidPatchException ex) {
+                    logger.warning(String.format("Cannot parse the patch '%s': '%s'.", patchFileName, ex.getMessage()));
+                }
+            }
+
+            instrumentation.addTransformer(transformer);
+        }catch (Exception ex){
+            logger.warning("An unexpected error occurred while running Dukkit:");
+            ex.printStackTrace();
+        }
     }
 
     public static Logger getLogger() {

@@ -7,6 +7,7 @@ import javassist.CtNewMethod;
 import org.dukkit.patches.Patch;
 import org.dukkit.utils.CompilerUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -18,10 +19,10 @@ public final class NewFieldPatch implements Patch {
     private final String getterMethodName;
     private final String setterMethodName;
 
-    public NewFieldPatch(Collection<String> targetClasses, Collection<String> imports, String fieldSignature, String getterMethodName,
-                         String setterMethodName) {
+    public NewFieldPatch(Collection<String> targetClasses, Collection<String> imports, String fieldSignature,
+                         String getterMethodName, String setterMethodName) {
         this.targetClasses = Collections.unmodifiableCollection(targetClasses);
-        this.imports = Collections.unmodifiableCollection(imports);
+        this.imports = imports == null ? new ArrayList<>() : Collections.unmodifiableCollection(imports);
         this.fieldSignature = fieldSignature;
         this.getterMethodName = getterMethodName;
         this.setterMethodName = setterMethodName;

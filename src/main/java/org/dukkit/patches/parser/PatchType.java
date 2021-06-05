@@ -31,7 +31,9 @@ public enum PatchType {
             checkNotMissing(source, "Cannot find source for this patch.");
             checkType(source, String.class, "Cannot find source for this patch.");
 
+            checkNotMissing(targetClasses, "Cannot find target classes for this patch.");
             checkType(targetClasses, Collection.class, "Cannot parse target classes for this patch.");
+
             checkType(imports, Collection.class, "Cannot parse imports for this patch.");
             checkType(getter, String.class, "Cannot parse getter method for this patch.");
             checkType(setter, String.class, "Cannot parse setter method for this patch.");

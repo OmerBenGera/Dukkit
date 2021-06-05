@@ -49,7 +49,7 @@ public enum PatchType {
             throws MissingPatchSectionException, InvalidPatchSectionTypeException;
 
     private static void checkType(Object obj, Class<?> type, String message) throws InvalidPatchSectionTypeException {
-        if (obj != null && !obj.getClass().isAssignableFrom(type)) {
+        if (obj != null && !type.isAssignableFrom(obj.getClass())) {
             throw new InvalidPatchSectionTypeException(message);
         }
     }

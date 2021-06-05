@@ -13,11 +13,11 @@ public enum PatchType {
 
     NEW_FIELD {
 
-        private static final String SOURCE_SECTION = "Source";
-        private static final String IMPORTS_SECTION = "Imports";
-        private static final String CLASSES_SECTION = "Classes";
-        private static final String GETTER_SECTION = "Getter";
-        private static final String SETTER_SECTION = "Setter";
+        private static final String SOURCE_SECTION = "source";
+        private static final String IMPORTS_SECTION = "imports";
+        private static final String CLASSES_SECTION = "classes";
+        private static final String GETTER_SECTION = "getter";
+        private static final String SETTER_SECTION = "setter";
 
         @Override
         public Patch createPatch(Map<String, Object> linesValues)

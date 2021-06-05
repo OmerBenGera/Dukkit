@@ -25,11 +25,11 @@ public final class PatchParser {
     private static final Pattern LINE_SECTION_STRING_PATTERN = Pattern.compile("'(.*)'");
     private static final Pattern LIST_LINE_INDICATOR_PATTERN = Pattern.compile("-");
 
-    private static final String SOURCE_SECTION_NAME = "Source";
+    private static final String SOURCE_SECTION_NAME = "source";
     private static final String SOURCE_SECTION_START_INDICATOR = "";
     private static final String LIST_LINE_INDICATOR = "-";
 
-    private static final String PATCH_TYPE_SECTION = "Patch";
+    private static final String PATCH_TYPE_SECTION = "patch";
 
     private final List<String> contents;
 

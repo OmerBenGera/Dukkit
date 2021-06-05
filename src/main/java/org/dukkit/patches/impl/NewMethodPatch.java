@@ -10,10 +10,12 @@ import java.util.Collections;
 
 public final class NewMethodPatch implements Patch {
 
+    private final Collection<String> targetClasses;
     private final Collection<String> imports;
     private final String methodSignature;
 
-    public NewMethodPatch(Collection<String> imports, String methodSignature){
+    public NewMethodPatch(Collection<String> targetClasses, Collection<String> imports, String methodSignature) {
+        this.targetClasses = Collections.unmodifiableCollection(targetClasses);
         this.imports = Collections.unmodifiableCollection(imports);
         this.methodSignature = methodSignature;
     }
@@ -21,7 +23,12 @@ public final class NewMethodPatch implements Patch {
     @Override
     public void applyPatch(CtClass ctClass) throws CannotCompileException {
         CompilerUtils.importPackages(ctClass, this.imports);
-        ctClass.addMethod( CompilerUtils.makeMethod(methodSignature, ctClass));
+        ctClass.addMethod(CompilerUtils.makeMethod(methodSignature, ctClass));
+    }
+
+    @Override
+    public Collection<String> getTargetClasses() {
+        return targetClasses;
     }
 
 }

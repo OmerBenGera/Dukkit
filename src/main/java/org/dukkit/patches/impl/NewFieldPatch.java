@@ -12,13 +12,15 @@ import java.util.Collections;
 
 public final class NewFieldPatch implements Patch {
 
+    private final Collection<String> targetClasses;
     private final Collection<String> imports;
     private final String fieldSignature;
     private final String getterMethodName;
     private final String setterMethodName;
 
-    public NewFieldPatch(Collection<String> imports, String fieldSignature, String getterMethodName,
-                         String setterMethodName){
+    public NewFieldPatch(Collection<String> targetClasses, Collection<String> imports, String fieldSignature, String getterMethodName,
+                         String setterMethodName) {
+        this.targetClasses = Collections.unmodifiableCollection(targetClasses);
         this.imports = Collections.unmodifiableCollection(imports);
         this.fieldSignature = fieldSignature;
         this.getterMethodName = getterMethodName;
@@ -32,13 +34,18 @@ public final class NewFieldPatch implements Patch {
         CtField ctField = CompilerUtils.makeField(fieldSignature, ctClass);
         ctClass.addField(ctField);
 
-        if(getterMethodName != null){
+        if (getterMethodName != null) {
             ctClass.addMethod(CtNewMethod.getter(getterMethodName, ctField));
         }
 
-        if(setterMethodName != null){
+        if (setterMethodName != null) {
             ctClass.addMethod(CtNewMethod.setter(setterMethodName, ctField));
         }
+    }
+
+    @Override
+    public Collection<String> getTargetClasses() {
+        return targetClasses;
     }
 
 }

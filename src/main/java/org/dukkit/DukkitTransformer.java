@@ -19,8 +19,8 @@ public final class DukkitTransformer implements ClassFileTransformer {
 
     private final Map<String, Collection<Patch>> patches = new HashMap<>();
 
-    public void addPatch(Patch patch, Collection<String> classPaths){
-        for(String path : classPaths){
+    public void addPatch(Patch patch) {
+        for (String path : patch.getTargetClasses()) {
             patches.computeIfAbsent(path.toLowerCase(), classPath -> new ArrayList<>()).add(patch);
         }
     }
@@ -31,22 +31,22 @@ public final class DukkitTransformer implements ClassFileTransformer {
 
         Collection<Patch> patchesToApply = patches.get(fixedClassName);
 
-        if(patchesToApply != null){
+        if (patchesToApply != null) {
             ClassPool classPool = ClassPool.getDefault();
             CtClass ctClass;
 
             try {
                 ctClass = classPool.get(fixedClassName);
-            }catch (NotFoundException ex){
+            } catch (NotFoundException ex) {
                 System.err.println("Failed to transform class " + fixedClassName + ":");
                 ex.printStackTrace();
                 return null;
             }
 
-            for(Patch patch : patchesToApply){
-                try{
+            for (Patch patch : patchesToApply) {
+                try {
                     patch.applyPatch(ctClass);
-                } catch (CannotCompileException ex){
+                } catch (CannotCompileException ex) {
                     System.err.println("Failed to apply patch " + patch + ":");
                     ex.printStackTrace();
                 }
@@ -54,7 +54,7 @@ public final class DukkitTransformer implements ClassFileTransformer {
 
             try {
                 return ctClass.toBytecode();
-            }catch (IOException | CannotCompileException ex){
+            } catch (IOException | CannotCompileException ex) {
                 System.err.println("Failed to build class " + fixedClassName + ":");
                 ex.printStackTrace();
             }

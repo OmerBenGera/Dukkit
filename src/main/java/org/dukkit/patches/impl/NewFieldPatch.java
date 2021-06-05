@@ -5,6 +5,7 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtNewMethod;
 import org.dukkit.patches.Patch;
+import org.dukkit.utils.CompilerUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,41 +13,31 @@ import java.util.Collections;
 public final class NewFieldPatch implements Patch {
 
     private final Collection<String> imports;
-    private final CtClass fieldType;
-    private final String fieldName;
-    private final int accessModifiers;
-    private final String initValue;
+    private final String fieldSignature;
     private final String getterMethodName;
     private final String setterMethodName;
 
-    public NewFieldPatch(Collection<String> imports, CtClass fieldType, String fieldName, int accessModifiers,
-                         String initValue, String getterMethodName, String setterMethodName){
+    public NewFieldPatch(Collection<String> imports, String fieldSignature, String getterMethodName,
+                         String setterMethodName){
         this.imports = Collections.unmodifiableCollection(imports);
-        this.fieldType = fieldType;
-        this.fieldName = fieldName;
-        this.accessModifiers = accessModifiers;
-        this.initValue = initValue;
+        this.fieldSignature = fieldSignature;
         this.getterMethodName = getterMethodName;
         this.setterMethodName = setterMethodName;
     }
 
     @Override
     public void applyPatch(CtClass ctClass) throws CannotCompileException {
-        for(String packageName : this.imports){
-            ctClass.getClassPool().importPackage(packageName);
-        }
+        CompilerUtils.importPackages(ctClass, this.imports);
 
-        CtField newField = new CtField(fieldType, fieldName, ctClass);
-        newField.setModifiers(accessModifiers);
-
-        ctClass.addField(newField, initValue);
+        CtField ctField = CompilerUtils.makeField(fieldSignature, ctClass);
+        ctClass.addField(ctField);
 
         if(getterMethodName != null){
-            ctClass.addMethod(CtNewMethod.getter(getterMethodName, newField));
+            ctClass.addMethod(CtNewMethod.getter(getterMethodName, ctField));
         }
 
         if(setterMethodName != null){
-            ctClass.addMethod(CtNewMethod.setter(setterMethodName, newField));
+            ctClass.addMethod(CtNewMethod.setter(setterMethodName, ctField));
         }
     }
 

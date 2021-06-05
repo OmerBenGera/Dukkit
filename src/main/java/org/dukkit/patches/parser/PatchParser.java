@@ -25,9 +25,8 @@ public final class PatchParser {
     private static final Pattern LINE_SECTION_STRING_PATTERN = Pattern.compile("'(.*)'");
     private static final Pattern LIST_LINE_INDICATOR_PATTERN = Pattern.compile("-");
 
-    private static final String BODY_SECTION_NAME = "body";
-    private static final String BODY_SECTION_START_INDICATOR = "{";
-    private static final String BODY_SECTION_END_INDICATOR = "}";
+    private static final String SOURCE_SECTION_NAME = "Source";
+    private static final String SOURCE_SECTION_START_INDICATOR = "";
     private static final String LIST_LINE_INDICATOR = "-";
 
     private static final String PATCH_TYPE_SECTION = "Patch";
@@ -73,9 +72,7 @@ public final class PatchParser {
         try(BufferedReader reader = new BufferedReader(new FileReader(file))){
             String line;
             while ((line = reader.readLine()) != null){
-                if(!line.equals("\n")) {
-                    contents.add(NEW_LINE_PATTERN.matcher(line).replaceAll("").trim());
-                }
+                contents.add(NEW_LINE_PATTERN.matcher(line).replaceAll("").trim());
             }
         }
 
@@ -88,8 +85,8 @@ public final class PatchParser {
         for(int i = 0; i < lines.size(); ++i){
             String currentLine = lines.get(i);
 
-            // Body section starts with the char '{' and should end with '}'
-            if(currentLine.equals(BODY_SECTION_START_INDICATOR)){
+            // Source section starts after a new empty line until the end of the patch.
+            if(currentLine.equals(SOURCE_SECTION_START_INDICATOR)){
                 StringBuilder bodyValue = new StringBuilder();
 
                 do{
@@ -103,10 +100,10 @@ public final class PatchParser {
                             bodyValue.append(currentLine);
                         }
                     }
-                }while (i < lines.size() && !currentLine.equals(BODY_SECTION_END_INDICATOR));
+                }while (i < lines.size());
 
                 if(bodyValue.length() != 0){
-                    linesValues.put(BODY_SECTION_NAME, bodyValue);
+                    linesValues.put(SOURCE_SECTION_NAME, bodyValue);
                 }
             }
 

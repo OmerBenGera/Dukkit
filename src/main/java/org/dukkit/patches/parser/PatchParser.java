@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class PatchParser {
@@ -118,8 +119,9 @@ public final class PatchParser {
                                 currentLine, i));
                     } else {
                         String sectionValue = lineSections[1];
-                        if (LINE_SECTION_STRING_PATTERN.matcher(sectionValue).matches()) {
-                            linesValues.put(sectionName, sectionValue);
+                        Matcher sectionValueMatcher = LINE_SECTION_STRING_PATTERN.matcher(sectionValue);
+                        if (sectionValueMatcher.matches()) {
+                            linesValues.put(sectionName, sectionValueMatcher.group(1));
                         } else {
                             try {
                                 BigDecimal decimalValue = new BigDecimal(sectionValue);

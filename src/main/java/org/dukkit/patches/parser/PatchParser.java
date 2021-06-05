@@ -97,12 +97,10 @@ public final class PatchParser {
                     ++i;
                     if (i < lines.size()) {
                         currentLine = lines.get(i);
-                        if (!currentLine.equals("}")) {
-                            if (sourceValue.length() != 0) {
-                                sourceValue.append(System.lineSeparator());
-                            }
-                            sourceValue.append(currentLine);
+                        if (sourceValue.length() != 0) {
+                            sourceValue.append(System.lineSeparator());
                         }
+                        sourceValue.append(currentLine);
                     }
                 } while (i < lines.size());
 
@@ -148,6 +146,9 @@ public final class PatchParser {
                                 if (currentLine.startsWith(LIST_LINE_INDICATOR)) {
                                     listValue.add(LIST_LINE_INDICATOR_PATTERN.matcher(currentLine)
                                             .replaceAll("").trim());
+                                }
+                                else{
+                                    --i;
                                 }
                             }
                         } while (i < lines.size() && currentLine.startsWith(LIST_LINE_INDICATOR));

@@ -1,6 +1,5 @@
 package org.dukkit;
 
-import org.dukkit.patches.Patch;
 import org.dukkit.patches.exceptions.InvalidPatchException;
 import org.dukkit.patches.parser.PatchParser;
 

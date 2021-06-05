@@ -12,7 +12,8 @@ import java.util.Collection;
 
 public final class CompilerUtils {
 
-    private CompilerUtils(){}
+    private CompilerUtils() {
+    }
 
     public static CtMethod makeMethod(String src, CtClass ctClass) throws CannotCompileException {
         return makeMember(src, ctClass, CtMethod.class);
@@ -22,19 +23,18 @@ public final class CompilerUtils {
         return makeMember(src, ctClass, CtField.class);
     }
 
-    public static void importPackages(CtClass ctClass, Collection<String> imports){
+    public static void importPackages(CtClass ctClass, Collection<String> imports) {
         imports.forEach(ctClass.getClassPool()::importPackage);
     }
 
     private static <T extends CtMember> T makeMember(String src, CtClass ctClass, Class<T> memberType)
-            throws CannotCompileException{
+            throws CannotCompileException {
         Javac compiler = new Javac(ctClass);
         try {
             CtMember member = compiler.compile(src);
-            if(member.getClass().isAssignableFrom(memberType))
+            if (member.getClass().isAssignableFrom(memberType))
                 return memberType.cast(member);
-        }
-        catch (CompileError e) {
+        } catch (CompileError e) {
             throw new CannotCompileException(e);
         }
 

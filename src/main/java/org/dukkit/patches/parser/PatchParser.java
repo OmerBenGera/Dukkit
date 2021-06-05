@@ -33,28 +33,30 @@ public final class PatchParser {
 
     private final List<String> contents;
 
-    public PatchParser(List<String> contents){
+    public PatchParser(List<String> contents) {
         this.contents = Collections.unmodifiableList(contents);
     }
 
     /**
      * Creates a new patch file from the contents of the parser.
+     *
      * @throws InvalidPatchException when there are issues with parsing the patch.
      */
-    public Patch parse() throws InvalidPatchException{
+    public Patch parse() throws InvalidPatchException {
         Map<String, Object> linesValues = parseLines(contents);
         Object patchTypeName = linesValues.get(PATCH_TYPE_SECTION);
 
-        if(patchTypeName instanceof String) {
+        if (patchTypeName instanceof String) {
             try {
                 PatchType patchType = PatchType.valueOf((String) patchTypeName);
 
-                try{
+                try {
                     return patchType.createPatch(linesValues);
-                }catch (MissingPatchSectionException | InvalidPatchSectionTypeException ex){
+                } catch (MissingPatchSectionException | InvalidPatchSectionTypeException ex) {
                     throw new InvalidPatchException(ex.getMessage());
                 }
-            } catch (IllegalArgumentException ignored) { }
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
         throw new InvalidPatchException("Invalid patch type '" + patchTypeName + "'.");
@@ -62,6 +64,7 @@ public final class PatchParser {
 
     /**
      * Create a PatchParser object from contents of a file.
+     *
      * @param file The file to read contents from.
      * @return The new PatchParser for the file.
      * @throws IOException when cannot read the file.
@@ -69,9 +72,9 @@ public final class PatchParser {
     public static PatchParser fromFile(File file) throws IOException {
         List<String> contents = new ArrayList<>();
 
-        try(BufferedReader reader = new BufferedReader(new FileReader(file))){
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 contents.add(NEW_LINE_PATTERN.matcher(line).replaceAll("").trim());
             }
         }
@@ -79,44 +82,41 @@ public final class PatchParser {
         return new PatchParser(contents);
     }
 
-    private static Map<String, Object> parseLines(List<String> lines){
+    private static Map<String, Object> parseLines(List<String> lines) {
         Map<String, Object> linesValues = new HashMap<>();
 
-        for(int i = 0; i < lines.size(); ++i){
+        for (int i = 0; i < lines.size(); ++i) {
             String currentLine = lines.get(i);
 
             // Source section starts after a new empty line until the end of the patch.
-            if(currentLine.equals(SOURCE_SECTION_START_INDICATOR)){
+            if (currentLine.equals(SOURCE_SECTION_START_INDICATOR)) {
                 StringBuilder bodyValue = new StringBuilder();
 
-                do{
+                do {
                     ++i;
-                    if(i < lines.size()) {
+                    if (i < lines.size()) {
                         currentLine = lines.get(i);
-                        if(!currentLine.equals("}")){
-                            if(bodyValue.length() != 0){
+                        if (!currentLine.equals("}")) {
+                            if (bodyValue.length() != 0) {
                                 bodyValue.append(System.lineSeparator());
                             }
                             bodyValue.append(currentLine);
                         }
                     }
-                }while (i < lines.size());
+                } while (i < lines.size());
 
-                if(bodyValue.length() != 0){
+                if (bodyValue.length() != 0) {
                     linesValues.put(SOURCE_SECTION_NAME, bodyValue);
                 }
-            }
-
-            else {
+            } else {
                 String[] lineSections = LINE_SECTION_SPLITTER_PATTERN.split(currentLine);
-                if(lineSections.length == 2){
+                if (lineSections.length == 2) {
                     String sectionName = lineSections[0].toLowerCase();
 
-                    if(sectionName.contains(" ")){
+                    if (sectionName.contains(" ")) {
                         DukkitMain.getLogger().warning(String.format("Cannot parse the line '%s' (#%d).",
                                 currentLine, i));
-                    }
-                    else {
+                    } else {
                         String sectionValue = lineSections[1];
                         if (LINE_SECTION_STRING_PATTERN.matcher(sectionValue).matches()) {
                             linesValues.put(sectionName, sectionValue);
@@ -130,22 +130,20 @@ public final class PatchParser {
                             }
                         }
                     }
-                }
-                else if(currentLine.endsWith(":")){
+                } else if (currentLine.endsWith(":")) {
                     String listName = currentLine.substring(0, currentLine.length() - 1).toLowerCase();
 
-                    if(listName.isEmpty()){
+                    if (listName.isEmpty()) {
                         DukkitMain.getLogger().warning(String.format("Cannot parse the line '%s' (#%d).",
                                 currentLine, i));
-                    }
-                    else {
+                    } else {
                         List<String> listValue = new ArrayList<>();
 
                         do {
                             ++i;
                             if (i < lines.size()) {
                                 currentLine = lines.get(i);
-                                if(currentLine.startsWith(LIST_LINE_INDICATOR)){
+                                if (currentLine.startsWith(LIST_LINE_INDICATOR)) {
                                     listValue.add(LIST_LINE_INDICATOR_PATTERN.matcher(currentLine)
                                             .replaceAll("").trim());
                                 }
@@ -157,8 +155,7 @@ public final class PatchParser {
                         }
                     }
 
-                }
-                else{
+                } else {
                     DukkitMain.getLogger().warning(String.format("Cannot parse the line '%s' (#%d).", currentLine, i));
                 }
             }
